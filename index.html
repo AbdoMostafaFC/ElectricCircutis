@@ -1,0 +1,1806 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تجربة الدوائر الكهربائية البسيطة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            padding: 15px;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        .header { text-align: center; padding: 20px; color: white; }
+        .header h1 {
+            font-size: 2em;
+            background: linear-gradient(135deg, #fff, #a5b4fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header p { color: rgba(255,255,255,0.7); margin-top: 5px; font-size: 0.95em; }
+
+        .progress-bar-container {
+            background: rgba(255,255,255,0.1);
+            border-radius: 30px;
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .progress-bar-container span { color: white; font-weight: 700; }
+        .progress-track { flex: 1; height: 8px; background: rgba(255,255,255,0.1); border-radius: 10px; }
+        .progress-value { height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), #ec4899); border-radius: 10px; transition: width 0.5s; }
+
+        .card {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            font-size: 0.95em;
+        }
+
+        /* =============== LEVEL SELECTION =============== */
+        .level-selection { text-align: center; }
+        .level-selection h2 { color: white; margin-bottom: 25px; font-size: 1.5em; }
+
+        .levels-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .level-card {
+            background: rgba(255,255,255,0.05);
+            border: 3px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 25px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .level-card:hover { transform: translateY(-5px); border-color: var(--primary); }
+        .level-card.selected { border-color: var(--success); box-shadow: 0 0 30px rgba(16, 185, 129, 0.3); }
+        .level-card.completed { border-color: var(--success); }
+        .level-card.completed::after {
+            content: '✅';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.5em;
+        }
+
+        .level-icon { font-size: 3em; margin-bottom: 15px; }
+        .level-name { color: white; font-size: 1.3em; font-weight: 700; margin-bottom: 8px; }
+        .level-desc { color: rgba(255,255,255,0.6); font-size: 0.9em; line-height: 1.6; }
+
+        .level-badge {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.75em;
+            font-weight: 700;
+        }
+        .level-badge.beginner { background: var(--success); color: white; }
+        .level-badge.intermediate { background: var(--warning); color: #1e293b; }
+        .level-badge.advanced { background: var(--danger); color: white; }
+
+        .start-level-btn {
+            width: 100%;
+            max-width: 300px;
+            padding: 15px 30px;
+            margin-top: 10px;
+            font-size: 1.2em;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-family: 'Tajawal', sans-serif;
+            transition: all 0.3s;
+        }
+        .start-level-btn:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4); }
+        .start-level-btn:disabled { background: #4b5563; cursor: not-allowed; }
+
+        /* =============== EXPERIMENT AREA =============== */
+        .experiment-container { display: none; }
+        .experiment-container.active { display: block; }
+
+        .main-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 20px; }
+        @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
+
+        .info-section { color: rgba(255,255,255,0.8); }
+        .info-section h4 { color: white; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        .info-section p { font-size: 0.9em; line-height: 1.7; margin-bottom: 15px; }
+        .info-section ul { padding-right: 20px; font-size: 0.9em; line-height: 1.8; }
+
+        .component-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            margin-bottom: 10px;
+        }
+        .component-icon { font-size: 1.8em; }
+        .component-info h5 { color: white; font-size: 0.95em; }
+        .component-info p { color: rgba(255,255,255,0.6); font-size: 0.8em; margin: 0; }
+
+        /* Prediction Box */
+        .prediction-box { margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .pred-question { color: white; text-align: center; margin-bottom: 15px; font-size: 0.95em; line-height: 1.6; }
+        .pred-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+
+        .pred-btn {
+            flex: 1;
+            min-width: 140px;
+            padding: 15px 10px;
+            font-size: 0.95em;
+            font-weight: 700;
+            border: 3px solid transparent;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Tajawal', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+            color: #1e293b;
+        }
+        .pred-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(255,255,255,0.2); }
+        .pred-btn.selected { border-color: var(--primary); box-shadow: 0 0 20px rgba(99, 102, 241, 0.5); }
+        .pred-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+        .start-btn {
+            width: 100%;
+            padding: 15px;
+            margin-top: 15px;
+            font-size: 1.1em;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: 'Tajawal', sans-serif;
+            transition: all 0.3s;
+        }
+        .start-btn:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4); }
+        .start-btn:disabled { background: #4b5563; cursor: not-allowed; }
+
+        /* =============== CIRCUIT AREA =============== */
+        .circuit-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        /* Battery */
+        .battery {
+            position: absolute;
+            width: 80px;
+            height: 120px;
+            top: 50%;
+            right: 30px;
+            transform: translateY(-50%);
+        }
+        .battery-body {
+            width: 60px;
+            height: 100px;
+            background: linear-gradient(90deg, #4ade80, #22c55e);
+            border-radius: 8px;
+            position: relative;
+            margin: 0 auto;
+            box-shadow: 0 5px 20px rgba(74, 222, 128, 0.3);
+        }
+        .battery-top {
+            width: 30px;
+            height: 15px;
+            background: #86efac;
+            border-radius: 3px 3px 0 0;
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .battery-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 0.8em;
+            white-space: nowrap;
+        }
+        .battery-plus, .battery-minus {
+            position: absolute;
+            font-size: 1.5em;
+            font-weight: 900;
+            color: white;
+        }
+        .battery-plus { top: 20px; left: 50%; transform: translateX(-50%); }
+        .battery-minus { bottom: 20px; left: 50%; transform: translateX(-50%); }
+
+        /* Bulb */
+        .bulb {
+            position: absolute;
+            width: 80px;
+            height: 120px;
+            top: 50%;
+            left: 30px;
+            transform: translateY(-50%);
+        }
+        .bulb-glass {
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.1);
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            margin: 0 auto;
+            position: relative;
+            transition: all 0.5s;
+        }
+        .bulb-glass.on {
+            background: radial-gradient(circle, #fef08a 0%, #facc15 50%, #eab308 100%);
+            box-shadow: 0 0 50px #facc15, 0 0 100px rgba(250, 204, 21, 0.5);
+            border-color: #fde047;
+        }
+        .bulb-glass.dim {
+            background: radial-gradient(circle, #fef9c3 0%, #fde047 50%, #facc15 100%);
+            box-shadow: 0 0 25px #fde047, 0 0 50px rgba(250, 204, 21, 0.3);
+            border-color: #fef08a;
+        }
+        .bulb-filament {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 30px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+        }
+        .bulb-glass.on .bulb-filament {
+            border-color: #fef9c3;
+            box-shadow: 0 0 10px #fef08a;
+        }
+        .bulb-base {
+            width: 30px;
+            height: 25px;
+            background: linear-gradient(90deg, #6b7280, #9ca3af, #6b7280);
+            border-radius: 0 0 5px 5px;
+            margin: -5px auto 0;
+        }
+        .bulb-label {
+            text-align: center;
+            color: white;
+            font-size: 0.8em;
+            margin-top: 10px;
+        }
+
+        /* Wires */
+        .wire {
+            position: absolute;
+            background: #64748b;
+            transition: background 0.5s;
+        }
+        .wire.active {
+            background: #f59e0b;
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+        }
+
+        .wire-top {
+            height: 6px;
+            top: 80px;
+            right: 90px;
+            left: 90px;
+            border-radius: 3px;
+        }
+        .wire-bottom {
+            height: 6px;
+            bottom: 80px;
+            right: 90px;
+            left: 90px;
+            border-radius: 3px;
+        }
+        .wire-right-top {
+            width: 6px;
+            height: 90px;
+            top: 80px;
+            right: 87px;
+            border-radius: 3px;
+        }
+        .wire-right-bottom {
+            width: 6px;
+            height: 90px;
+            bottom: 80px;
+            right: 87px;
+            border-radius: 3px;
+        }
+        .wire-left-top {
+            width: 6px;
+            height: 90px;
+            top: 80px;
+            left: 87px;
+            border-radius: 3px;
+        }
+        .wire-left-bottom {
+            width: 6px;
+            height: 90px;
+            bottom: 80px;
+            left: 87px;
+            border-radius: 3px;
+        }
+
+        /* Switch */
+        .switch-container {
+            position: absolute;
+            top: 74px;
+            left: 50%;
+            transform: translateX(-50%);
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .switch-base {
+            width: 60px;
+            height: 20px;
+            background: #374151;
+            border-radius: 10px;
+            position: relative;
+        }
+        .switch-handle {
+            width: 50px;
+            height: 8px;
+            background: #9ca3af;
+            position: absolute;
+            top: 6px;
+            right: 5px;
+            transform-origin: right center;
+            transition: transform 0.3s;
+            border-radius: 4px;
+        }
+        .switch-handle.open {
+            transform: rotate(-30deg);
+        }
+        .switch-contact-left, .switch-contact-right {
+            width: 12px;
+            height: 12px;
+            background: #6b7280;
+            border-radius: 50%;
+            position: absolute;
+            top: 4px;
+        }
+        .switch-contact-left { left: -6px; }
+        .switch-contact-right { right: -6px; }
+        .switch-label {
+            text-align: center;
+            color: white;
+            font-size: 0.75em;
+            margin-top: 5px;
+        }
+
+        /* Circuit Status */
+        .circuit-status {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 0.9em;
+        }
+        .circuit-status.open {
+            background: rgba(239, 68, 68, 0.2);
+            border: 2px solid var(--danger);
+            color: #fca5a5;
+        }
+        .circuit-status.closed {
+            background: rgba(16, 185, 129, 0.2);
+            border: 2px solid var(--success);
+            color: #6ee7b7;
+        }
+
+        /* =============== SERIES/PARALLEL CIRCUITS =============== */
+        .circuit-type-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .circuit-type-btn {
+            flex: 1;
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            border: 3px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            color: white;
+            font-family: 'Tajawal', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .circuit-type-btn:hover { border-color: var(--primary); }
+        .circuit-type-btn.active { border-color: var(--success); background: rgba(16, 185, 129, 0.1); }
+        .circuit-type-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* Second Bulb */
+        .bulb2 {
+            position: absolute;
+            width: 80px;
+            height: 120px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Result Box */
+        .result-box {
+            width: 100%;
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            display: none;
+        }
+        .result-box.visible { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .result-box.correct { background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.3)); border: 2px solid var(--success); }
+        .result-box.wrong { background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.3)); border: 2px solid var(--danger); animation: fadeIn 0.5s, shake 0.5s; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-10px); } 40%, 80% { transform: translateX(10px); } }
+
+        .result-icon { font-size: 3em; margin-bottom: 10px; }
+        .result-title { color: white; font-size: 1.3em; font-weight: 700; }
+        .result-desc { color: rgba(255,255,255,0.7); margin-top: 8px; font-size: 0.95em; }
+
+        /* Explanation */
+        .explanation {
+            width: 100%;
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(251, 191, 36, 0.15);
+            border: 2px solid var(--warning);
+            border-radius: 12px;
+            display: none;
+        }
+        .explanation.visible { display: block; animation: fadeIn 0.5s 0.2s both; }
+        .explanation h4 { color: var(--warning); margin-bottom: 8px; }
+        .explanation p { color: rgba(255,255,255,0.9); line-height: 1.7; font-size: 0.95em; }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .reset-btn, .next-btn, .back-btn {
+            flex: 1;
+            min-width: 150px;
+            padding: 12px 25px;
+            font-size: 1em;
+            font-weight: 700;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: 'Tajawal', sans-serif;
+            transition: all 0.3s;
+            display: none;
+        }
+        .reset-btn.visible, .next-btn.visible, .back-btn.visible { display: inline-block; animation: fadeIn 0.5s; }
+
+        .reset-btn { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; }
+        .next-btn { background: linear-gradient(135deg, var(--success), #059669); color: white; }
+        .back-btn { background: linear-gradient(135deg, #64748b, #475569); color: white; }
+
+        .reset-btn:hover, .next-btn:hover, .back-btn:hover { transform: translateY(-3px); }
+
+        /* Completion Box */
+        .completion-box {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.3));
+            border: 2px solid var(--success);
+            border-radius: 15px;
+        }
+        .completion-box .trophy { font-size: 4em; margin-bottom: 15px; animation: bounce 1s ease infinite; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        .completion-box h3 { color: white; font-size: 1.5em; margin-bottom: 10px; }
+        .completion-box p { color: rgba(255,255,255,0.8); font-size: 1em; }
+
+        /* Info Box */
+        .info-box {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        .info-box h4 { color: var(--primary); margin-bottom: 8px; font-size: 0.95em; }
+        .info-box p { color: rgba(255,255,255,0.8); font-size: 0.85em; line-height: 1.6; }
+
+        /* Comparison Table */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .comparison-table th, .comparison-table td {
+            padding: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+            color: white;
+        }
+        .comparison-table th {
+            background: rgba(99, 102, 241, 0.2);
+            font-weight: 700;
+        }
+        .comparison-table td { font-size: 0.9em; }
+
+        /* Confetti */
+        .confetti { position: fixed; width: 10px; height: 10px; z-index: 9999; animation: confettiFall 3s ease-out forwards; }
+        @keyframes confettiFall { 0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: rgba(0,0,0,0.9);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-weight: 600;
+            z-index: 10000;
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        .notification.show { transform: translateX(-50%) translateY(0); }
+
+        /* Sound Button */
+        .sound-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2);
+            font-size: 1.5em;
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.3s;
+        }
+        .sound-btn:hover { background: rgba(255,255,255,0.2); transform: scale(1.1); }
+
+        /* Hidden */
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div class="notification" id="notification"></div>
+<button class="sound-btn" id="soundBtn" onclick="toggleSound()">🔊</button>
+
+<div class="container">
+    <header class="header">
+        <h1>⚡ تجربة الدوائر الكهربائية</h1>
+        <p>Electric Circuits - تعلم أساسيات الكهرباء</p>
+    </header>
+
+    <div class="progress-bar-container">
+        <span>📊 التقدم:</span>
+        <div class="progress-track">
+            <div class="progress-value" id="progressBar"></div>
+        </div>
+        <span id="progressText">0/3</span>
+    </div>
+
+    <!-- =============== LEVEL SELECTION =============== -->
+    <div class="card level-selection" id="levelSelection">
+        <div class="card-title">🎯 اختر المستوى</div>
+        <h2>ابدأ رحلتك في عالم الكهرباء!</h2>
+
+        <div class="levels-grid">
+            <div class="level-card" id="levelBeginner" onclick="selectLevel('beginner')">
+                <span class="level-badge beginner">مبتدئ</span>
+                <div class="level-icon">💡</div>
+                <div class="level-name">الدائرة البسيطة</div>
+                <div class="level-desc">تعلم كيف تضيء لمبة باستخدام بطارية وأسلاك فقط</div>
+            </div>
+
+            <div class="level-card" id="levelIntermediate" onclick="selectLevel('intermediate')">
+                <span class="level-badge intermediate">متوسط</span>
+                <div class="level-icon">🔘</div>
+                <div class="level-name">المفتاح الكهربائي</div>
+                <div class="level-desc">تحكم في الدائرة باستخدام مفتاح لفتحها وإغلاقها</div>
+            </div>
+
+            <div class="level-card" id="levelAdvanced" onclick="selectLevel('advanced')">
+                <span class="level-badge advanced">متقدم</span>
+                <div class="level-icon">🔌</div>
+                <div class="level-name">التوالي والتوازي</div>
+                <div class="level-desc">قارن بين توصيل اللمبات على التوالي وعلى التوازي</div>
+            </div>
+        </div>
+
+        <button class="start-level-btn" id="startLevelBtn" onclick="startSelectedLevel()" disabled>
+            🚀 ابدأ المستوى المختار
+        </button>
+    </div>
+
+    <!-- =============== BEGINNER LEVEL =============== -->
+    <div class="experiment-container" id="beginnerExperiment">
+        <div class="main-grid">
+            <div>
+                <div class="card">
+                    <div class="card-title">📚 المستوى المبتدئ - الدائرة البسيطة</div>
+
+                    <div class="info-section">
+                        <h4>🎯 الهدف من التجربة</h4>
+                        <ul>
+                            <li>فهم معنى الدائرة الكهربائية المغلقة والمفتوحة</li>
+                            <li>التعرف على مكونات الدائرة البسيطة</li>
+                            <li>ملاحظة العلاقة بين اكتمال المسار وإضاءة اللمبة</li>
+                        </ul>
+                    </div>
+
+                    <div class="info-section" style="margin-top: 15px;">
+                        <h4>🔧 العناصر المستخدمة</h4>
+                        <div class="component-item">
+                            <span class="component-icon">🔋</span>
+                            <div class="component-info">
+                                <h5>البطارية</h5>
+                                <p>مصدر الطاقة الكهربائية</p>
+                            </div>
+                        </div>
+                        <div class="component-item">
+                            <span class="component-icon">🔌</span>
+                            <div class="component-info">
+                                <h5>الأسلاك</h5>
+                                <p>تنقل التيار الكهربائي</p>
+                            </div>
+                        </div>
+                        <div class="component-item">
+                            <span class="component-icon">💡</span>
+                            <div class="component-info">
+                                <h5>اللمبة</h5>
+                                <p>تحول الطاقة الكهربائية إلى ضوء</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="prediction-box">
+                        <p class="pred-question">❓ ماذا تتوقع أن يحدث إذا وصلنا البطارية باللمبة عن طريق الأسلاك؟</p>
+                        <div class="pred-buttons">
+                            <button class="pred-btn" id="predLightOn" onclick="setPrediction('beginner', 'light')">
+                                💡 ستضيء اللمبة
+                            </button>
+                            <button class="pred-btn" id="predLightOff" onclick="setPrediction('beginner', 'nolight')">
+                                ⚫ لن تضيء اللمبة
+                            </button>
+                        </div>
+                    </div>
+
+                    <button class="start-btn" id="beginnerStartBtn" onclick="runBeginnerExperiment()" disabled>
+                        🚀 ابدأ التجربة
+                    </button>
+
+                    <div class="info-box">
+                        <h4>💡 معلومة</h4>
+                        <p>الدائرة الكهربائية المغلقة هي مسار مكتمل يسمح بمرور التيار الكهربائي من مصدر الطاقة إلى الجهاز ثم العودة مرة أخرى إلى المصدر.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">⚡ منطقة التجربة</div>
+
+                <div class="circuit-container" id="beginnerCircuit">
+                    <div class="battery">
+                        <div class="battery-body">
+                            <span class="battery-plus">+</span>
+                            <span class="battery-minus">−</span>
+                        </div>
+                        <div class="battery-top"></div>
+                        <div class="battery-label">🔋 البطارية</div>
+                    </div>
+
+                    <div class="bulb">
+                        <div class="bulb-glass" id="beginnerBulb">
+                            <div class="bulb-filament"></div>
+                        </div>
+                        <div class="bulb-base"></div>
+                        <div class="bulb-label">💡 اللمبة</div>
+                    </div>
+
+                    <div class="wire wire-top" id="wireTop1"></div>
+                    <div class="wire wire-bottom" id="wireBottom1"></div>
+                    <div class="wire wire-right-top" id="wireRightTop1"></div>
+                    <div class="wire wire-right-bottom" id="wireRightBottom1"></div>
+                    <div class="wire wire-left-top" id="wireLeftTop1"></div>
+                    <div class="wire wire-left-bottom" id="wireLeftBottom1"></div>
+
+                    <div class="circuit-status open" id="beginnerStatus">🔴 الدائرة مفتوحة</div>
+                </div>
+
+                <div class="result-box" id="beginnerResult">
+                    <div class="result-icon" id="beginnerResultIcon">🎉</div>
+                    <div class="result-title" id="beginnerResultTitle">النتيجة</div>
+                    <div class="result-desc" id="beginnerResultDesc">الوصف</div>
+                </div>
+
+                <div class="explanation" id="beginnerExplanation">
+                    <h4>💡 التفسير العلمي</h4>
+                    <p>عند توصيل البطارية باللمبة بشكل صحيح، يتكون مسار مغلق يسمح للتيار الكهربائي بالمرور. البطارية تدفع الشحنات الكهربائية، والأسلاك تنقلها، واللمبة تستخدم هذا التيار وتحوله إلى ضوء.</p>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="back-btn visible" id="beginnerBackBtn" onclick="goToLevelSelection()">🔙 العودة للمستويات</button>
+                    <button class="reset-btn" id="beginnerResetBtn" onclick="resetBeginner()">🔄 إعادة التجربة</button>
+                    <button class="next-btn" id="beginnerNextBtn" onclick="goToLevel('intermediate')">➡️ المستوى التالي</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =============== INTERMEDIATE LEVEL =============== -->
+    <div class="experiment-container" id="intermediateExperiment">
+        <div class="main-grid">
+            <div>
+                <div class="card">
+                    <div class="card-title">📚 المستوى المتوسط - المفتاح الكهربائي</div>
+
+                    <div class="info-section">
+                        <h4>🎯 الهدف التعليمي</h4>
+                        <ul>
+                            <li>فهم وظيفة المفتاح الكهربائي</li>
+                            <li>الربط بين حركة المفتاح ومرور التيار</li>
+                            <li>إدراك أن التيار لا يمر إلا في دائرة مغلقة</li>
+                        </ul>
+                    </div>
+
+                    <div class="info-section" style="margin-top: 15px;">
+                        <h4>🔧 العناصر</h4>
+                        <div class="component-item">
+                            <span class="component-icon">🔋</span>
+                            <div class="component-info">
+                                <h5>البطارية</h5>
+                                <p>مصدر الطاقة</p>
+                            </div>
+                        </div>
+                        <div class="component-item">
+                            <span class="component-icon">🔘</span>
+                            <div class="component-info">
+                                <h5>المفتاح الكهربائي</h5>
+                                <p>يتحكم في فتح وإغلاق الدائرة</p>
+                            </div>
+                        </div>
+                        <div class="component-item">
+                            <span class="component-icon">💡</span>
+                            <div class="component-info">
+                                <h5>اللمبة</h5>
+                                <p>جهاز التحويل</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="prediction-box">
+                        <p class="pred-question">❓ ماذا يحدث عند غلق المفتاح الكهربائي؟</p>
+                        <div class="pred-buttons">
+                            <button class="pred-btn" id="predSwitchLight" onclick="setPrediction('intermediate', 'light')">
+                                💡 ستضيء اللمبة
+                            </button>
+                            <button class="pred-btn" id="predSwitchNoLight" onclick="setPrediction('intermediate', 'nolight')">
+                                ⚫ لن تضيء اللمبة
+                            </button>
+                        </div>
+                    </div>
+
+                    <button class="start-btn" id="intermediateStartBtn" onclick="runIntermediateExperiment()" disabled>
+                        🚀 ابدأ التجربة
+                    </button>
+
+                    <div class="info-box">
+                        <h4>💡 معلومة</h4>
+                        <p>المفتاح الكهربائي هو أداة للتحكم في فتح وإغلاق الدائرة الكهربائية. عند غلق المفتاح، الدائرة تكتمل والتيار يمر. عند فتحه، الدائرة تنقطع والتيار يتوقف.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">⚡ منطقة التجربة</div>
+
+                <p style="color: rgba(255,255,255,0.7); text-align: center; margin-bottom: 15px;" id="intermediateInstruction">
+                    اختر توقعك ثم اضغط ابدأ التجربة
+                </p>
+
+                <div class="circuit-container" id="intermediateCircuit">
+                    <div class="battery">
+                        <div class="battery-body">
+                            <span class="battery-plus">+</span>
+                            <span class="battery-minus">−</span>
+                        </div>
+                        <div class="battery-top"></div>
+                        <div class="battery-label">🔋 البطارية</div>
+                    </div>
+
+                    <div class="bulb">
+                        <div class="bulb-glass" id="intermediateBulb">
+                            <div class="bulb-filament"></div>
+                        </div>
+                        <div class="bulb-base"></div>
+                        <div class="bulb-label">💡 اللمبة</div>
+                    </div>
+
+                    <div class="switch-container" id="switchContainer" onclick="toggleSwitch()">
+                        <div class="switch-base">
+                            <div class="switch-contact-left"></div>
+                            <div class="switch-handle open" id="switchHandle"></div>
+                            <div class="switch-contact-right"></div>
+                        </div>
+                        <div class="switch-label" id="switchLabel">🔴 المفتاح مفتوح</div>
+                    </div>
+
+                    <div class="wire wire-top" id="wireTop2" style="left: 140px;"></div>
+                    <div class="wire wire-top" id="wireTop2b" style="right: 90px; left: auto; width: 100px;"></div>
+                    <div class="wire wire-bottom" id="wireBottom2"></div>
+                    <div class="wire wire-right-top" id="wireRightTop2"></div>
+                    <div class="wire wire-right-bottom" id="wireRightBottom2"></div>
+                    <div class="wire wire-left-top" id="wireLeftTop2"></div>
+                    <div class="wire wire-left-bottom" id="wireLeftBottom2"></div>
+
+                    <div class="circuit-status open" id="intermediateStatus">🔴 الدائرة مفتوحة</div>
+                </div>
+
+                <div class="result-box" id="intermediateResult">
+                    <div class="result-icon" id="intermediateResultIcon">🎉</div>
+                    <div class="result-title" id="intermediateResultTitle">النتيجة</div>
+                    <div class="result-desc" id="intermediateResultDesc">الوصف</div>
+                </div>
+
+                <div class="explanation" id="intermediateExplanation">
+                    <h4>💡 التفسير العلمي</h4>
+                    <p>المفتاح لا يُنتج كهرباء، لكنه يتحكم في مرور التيار فقط. عند غلقه، يكتمل المسار الكهربائي فيمر التيار وتضيء اللمبة. عند فتحه، ينقطع المسار فيتوقف التيار وتنطفئ اللمبة.</p>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="back-btn visible" id="intermediateBackBtn" onclick="goToLevelSelection()">🔙 العودة للمستويات</button>
+                    <button class="reset-btn" id="intermediateResetBtn" onclick="resetIntermediate()">🔄 إعادة التجربة</button>
+                    <button class="next-btn" id="intermediateNextBtn" onclick="goToLevel('advanced')">➡️ المستوى التالي</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =============== ADVANCED LEVEL =============== -->
+    <div class="experiment-container" id="advancedExperiment">
+        <div class="main-grid">
+            <div>
+                <div class="card">
+                    <div class="card-title">📚 المستوى المتقدم - التوالي والتوازي</div>
+
+                    <div class="circuit-type-selector">
+                        <button class="circuit-type-btn active" id="seriesBtn" onclick="selectCircuitType('series')">
+                            🔗 دائرة التوالي
+                        </button>
+                        <button class="circuit-type-btn" id="parallelBtn" onclick="selectCircuitType('parallel')">
+                            🔀 دائرة التوازي
+                        </button>
+                    </div>
+
+                    <div class="info-section" id="seriesInfo">
+                        <h4>🔗 دائرة التوالي (Series Circuit)</h4>
+                        <p>هي دائرة يمر فيها التيار في <strong>مسار واحد فقط</strong> عبر جميع المكونات.</p>
+                        <ul>
+                            <li>اللمبتان تضيئان لكن <strong>بإضاءة أضعف</strong></li>
+                            <li>عند إزالة أو احتراق لمبة واحدة:</li>
+                            <li style="margin-right: 20px; list-style: circle;">ينقطع المسار</li>
+                            <li style="margin-right: 20px; list-style: circle;">تنطفئ اللمبتان معاً</li>
+                        </ul>
+                    </div>
+
+                    <div class="info-section hidden" id="parallelInfo">
+                        <h4>🔀 دائرة التوازي (Parallel Circuit)</h4>
+                        <p>هي دائرة تحتوي على <strong>أكثر من مسار</strong> لمرور التيار.</p>
+                        <ul>
+                            <li>اللمبتان تضيئان <strong>بقوة متساوية</strong></li>
+                            <li>عند فصل أو احتراق لمبة:</li>
+                            <li style="margin-right: 20px; list-style: circle;">اللمبة الأخرى تظل مضيئة</li>
+                            <li style="margin-right: 20px; list-style: circle;">كل لمبة لها مسار مستقل</li>
+                        </ul>
+                    </div>
+
+                    <div class="prediction-box">
+                        <p class="pred-question" id="advancedQuestion">❓ في دائرة التوالي، كيف ستكون إضاءة اللمبتين؟</p>
+                        <div class="pred-buttons" id="advancedPredButtons">
+                            <button class="pred-btn" id="predEqual" onclick="setPrediction('advanced', 'equal')">
+                                💡💡 قوية ومتساوية
+                            </button>
+                            <button class="pred-btn" id="predWeak" onclick="setPrediction('advanced', 'weak')">
+                                🔅🔅 ضعيفة
+                            </button>
+                        </div>
+                    </div>
+
+                    <button class="start-btn" id="advancedStartBtn" onclick="runAdvancedExperiment()" disabled>
+                        🚀 ابدأ التجربة
+                    </button>
+
+                    <div class="info-box">
+                        <h4>📊 مقارنة سريعة</h4>
+                        <table class="comparison-table">
+                            <tr>
+                                <th>الخاصية</th>
+                                <th>توالي</th>
+                                <th>توازي</th>
+                            </tr>
+                            <tr>
+                                <td>عدد المسارات</td>
+                                <td>مسار واحد</td>
+                                <td>عدة مسارات</td>
+                            </tr>
+                            <tr>
+                                <td>شدة الإضاءة</td>
+                                <td>ضعيفة</td>
+                                <td>قوية</td>
+                            </tr>
+                            <tr>
+                                <td>فصل لمبة</td>
+                                <td>الجميع ينطفئ</td>
+                                <td>الأخرى تعمل</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">⚡ منطقة التجربة</div>
+
+                <p style="color: rgba(255,255,255,0.7); text-align: center; margin-bottom: 15px;" id="advancedInstruction">
+                    شاهد كيف تعمل دائرة التوالي
+                </p>
+
+                <div class="circuit-container" id="advancedCircuit">
+                    <div class="battery" style="right: 20px;">
+                        <div class="battery-body">
+                            <span class="battery-plus">+</span>
+                            <span class="battery-minus">−</span>
+                        </div>
+                        <div class="battery-top"></div>
+                        <div class="battery-label">🔋 البطارية</div>
+                    </div>
+
+                    <div class="bulb" style="left: 20px;">
+                        <div class="bulb-glass" id="advancedBulb1">
+                            <div class="bulb-filament"></div>
+                        </div>
+                        <div class="bulb-base"></div>
+                        <div class="bulb-label">💡 لمبة 1</div>
+                    </div>
+
+                    <div class="bulb2" id="bulb2Container">
+                        <div class="bulb-glass" id="advancedBulb2">
+                            <div class="bulb-filament"></div>
+                        </div>
+                        <div class="bulb-base"></div>
+                        <div class="bulb-label">💡 لمبة 2</div>
+                    </div>
+
+                    <div class="wire" id="advWire1" style="position: absolute; height: 6px; top: 80px; right: 80px; width: 80px;"></div>
+                    <div class="wire" id="advWire2" style="position: absolute; width: 6px; height: 60px; top: 80px; right: 77px;"></div>
+                    <div class="wire" id="advWire3" style="position: absolute; height: 6px; top: 140px; right: 80px; left: 50%;"></div>
+                    <div class="wire" id="advWire4" style="position: absolute; width: 6px; height: 60px; top: 140px; left: 50%;"></div>
+                    <div class="wire" id="advWire5" style="position: absolute; height: 6px; top: 200px; left: 80px; right: 50%;"></div>
+                    <div class="wire" id="advWire6" style="position: absolute; width: 6px; height: 60px; top: 200px; left: 77px;"></div>
+                    <div class="wire" id="advWire7" style="position: absolute; height: 6px; bottom: 80px; left: 80px; right: 80px;"></div>
+                    <div class="wire" id="advWire8" style="position: absolute; width: 6px; height: 60px; bottom: 80px; right: 77px;"></div>
+
+                    <div class="circuit-status open" id="advancedStatus">شاهد التجربة</div>
+                </div>
+
+                <div class="result-box" id="advancedResult">
+                    <div class="result-icon" id="advancedResultIcon">🎉</div>
+                    <div class="result-title" id="advancedResultTitle">النتيجة</div>
+                    <div class="result-desc" id="advancedResultDesc">الوصف</div>
+                </div>
+
+                <div class="explanation" id="advancedExplanation">
+                    <h4>💡 التفسير العلمي</h4>
+                    <p id="advancedExplanationText">
+                        في دائرة التوالي، التيار يمر في مسار واحد فقط. الجهد الكهربائي يتوزع بين اللمبتين، لذلك تقل شدة الإضاءة. انقطاع عنصر واحد يقطع الدائرة بالكامل.
+                    </p>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="back-btn visible" id="advancedBackBtn" onclick="goToLevelSelection()">🔙 العودة للمستويات</button>
+                    <button class="reset-btn" id="advancedResetBtn" onclick="resetAdvanced()">🔄 إعادة التجربة</button>
+                    <button class="next-btn" id="advancedNextBtn" onclick="completeAllLevels()">🏆 إنهاء</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =============== COMPLETION =============== -->
+    <div class="card" id="completionCard" style="display: none;">
+        <div class="completion-box">
+            <div class="trophy">🏆</div>
+            <h3>مبروك! أكملت جميع المستويات! 🎉</h3>
+            <p>تعلمت أساسيات الدوائر الكهربائية: الدائرة البسيطة، المفتاح الكهربائي، والتوصيل على التوالي والتوازي</p>
+        </div>
+        <button class="start-level-btn" style="margin-top: 20px;" onclick="restartAll()">🔄 البدء من جديد</button>
+    </div>
+</div>
+
+<script>
+// =============== SOUND ===============
+class Sound {
+    constructor() { this.ctx = null; this.muted = false; }
+    init() {
+        if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+    }
+    play(type) {
+        if (this.muted) return;
+        this.init();
+        const c = this.ctx, t = c.currentTime;
+
+        if (type === 'click') {
+            const o = c.createOscillator(), g = c.createGain();
+            o.connect(g); g.connect(c.destination);
+            o.frequency.value = 800; o.type = 'sine';
+            g.gain.setValueAtTime(0.1, t);
+            g.gain.linearRampToValueAtTime(0, t + 0.05);
+            o.start(); o.stop(t + 0.05);
+        }
+        if (type === 'success') {
+            [523, 659, 784, 1047].forEach((f, i) => {
+                const o = c.createOscillator(), g = c.createGain();
+                o.connect(g); g.connect(c.destination);
+                o.frequency.value = f; o.type = 'sine';
+                g.gain.setValueAtTime(0, t + i * 0.1);
+                g.gain.linearRampToValueAtTime(0.2, t + i * 0.1 + 0.05);
+                g.gain.linearRampToValueAtTime(0, t + i * 0.1 + 0.3);
+                o.start(t + i * 0.1); o.stop(t + i * 0.1 + 0.3);
+            });
+        }
+        if (type === 'error') {
+            [400, 350, 300].forEach((f, i) => {
+                const o = c.createOscillator(), g = c.createGain();
+                o.connect(g); g.connect(c.destination);
+                o.frequency.value = f; o.type = 'sawtooth';
+                g.gain.setValueAtTime(0, t + i * 0.12);
+                g.gain.linearRampToValueAtTime(0.1, t + i * 0.12 + 0.05);
+                g.gain.linearRampToValueAtTime(0, t + i * 0.12 + 0.15);
+                o.start(t + i * 0.12); o.stop(t + i * 0.12 + 0.15);
+            });
+        }
+        if (type === 'switch') {
+            const o = c.createOscillator(), g = c.createGain();
+            o.connect(g); g.connect(c.destination);
+            o.frequency.value = 600; o.type = 'square';
+            g.gain.setValueAtTime(0.1, t);
+            g.gain.linearRampToValueAtTime(0, t + 0.08);
+            o.start(); o.stop(t + 0.08);
+        }
+        if (type === 'bulbOn') {
+            const o = c.createOscillator(), g = c.createGain();
+            o.connect(g); g.connect(c.destination);
+            o.frequency.setValueAtTime(300, t);
+            o.frequency.linearRampToValueAtTime(600, t + 0.2);
+            o.type = 'sine';
+            g.gain.setValueAtTime(0.15, t);
+            g.gain.linearRampToValueAtTime(0, t + 0.3);
+            o.start(); o.stop(t + 0.3);
+        }
+        if (type === 'bulbOff') {
+            const o = c.createOscillator(), g = c.createGain();
+            o.connect(g); g.connect(c.destination);
+            o.frequency.setValueAtTime(600, t);
+            o.frequency.linearRampToValueAtTime(200, t + 0.2);
+            o.type = 'sine';
+            g.gain.setValueAtTime(0.1, t);
+            g.gain.linearRampToValueAtTime(0, t + 0.25);
+            o.start(); o.stop(t + 0.25);
+        }
+        if (type === 'electric') {
+            for (let i = 0; i < 3; i++) {
+                setTimeout(() => {
+                    if (this.muted) return;
+                    const o = c.createOscillator(), g = c.createGain();
+                    o.connect(g); g.connect(c.destination);
+                    o.frequency.value = 100 + Math.random() * 50;
+                    o.type = 'sawtooth';
+                    g.gain.setValueAtTime(0.05, c.currentTime);
+                    g.gain.linearRampToValueAtTime(0, c.currentTime + 0.1);
+                    o.start(); o.stop(c.currentTime + 0.1);
+                }, i * 100);
+            }
+        }
+        if (type === 'complete') {
+            [523, 659, 784, 1047, 1319].forEach((f, i) => {
+                const o = c.createOscillator(), g = c.createGain();
+                o.connect(g); g.connect(c.destination);
+                o.frequency.value = f; o.type = 'sine';
+                g.gain.setValueAtTime(0, t + i * 0.15);
+                g.gain.linearRampToValueAtTime(0.25, t + i * 0.15 + 0.05);
+                g.gain.linearRampToValueAtTime(0, t + i * 0.15 + 0.4);
+                o.start(t + i * 0.15); o.stop(t + i * 0.15 + 0.4);
+            });
+        }
+    }
+    toggle() { this.muted = !this.muted; return this.muted; }
+}
+
+const sound = new Sound();
+function toggleSound() {
+    const muted = sound.toggle();
+    document.getElementById('soundBtn').textContent = muted ? '🔇' : '🔊';
+    notify(muted ? '🔇 الصوت مغلق' : '🔊 الصوت مفعّل');
+}
+
+// =============== VARIABLES ===============
+let selectedLevel = null;
+let predictions = { beginner: null, intermediate: null, advanced: null };
+let completedLevels = { beginner: false, intermediate: false, advanced: false };
+let switchClosed = false;
+let circuitType = 'series';
+let experimentStarted = { beginner: false, intermediate: false, advanced: false };
+let resultShown = { beginner: false, intermediate: false, advanced: false };
+
+// =============== NOTIFY ===============
+function notify(msg, dur = 2500) {
+    const el = document.getElementById('notification');
+    el.textContent = msg;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), dur);
+}
+
+// =============== CONFETTI ===============
+function createConfetti() {
+    const colors = ['#6366f1', '#ec4899', '#10b981', '#f59e0b', '#3b82f6', '#ffffff'];
+    for (let i = 0; i < 50; i++) {
+        const c = document.createElement('div');
+        c.className = 'confetti';
+        c.style.left = Math.random() * 100 + 'vw';
+        c.style.background = colors[Math.floor(Math.random() * colors.length)];
+        c.style.animationDelay = Math.random() * 1 + 's';
+        c.style.animationDuration = (2 + Math.random() * 2) + 's';
+        if (Math.random() > 0.5) c.style.borderRadius = '50%';
+        document.body.appendChild(c);
+        setTimeout(() => c.remove(), 4000);
+    }
+}
+
+// =============== PROGRESS UPDATE ===============
+function updateProgress() {
+    const completed = Object.values(completedLevels).filter(v => v).length;
+    const total = 3;
+    const percent = (completed / total) * 100;
+    document.getElementById('progressBar').style.width = percent + '%';
+    document.getElementById('progressText').textContent = `${completed}/${total}`;
+    
+    // Update level cards to show completion
+    if (completedLevels.beginner) document.getElementById('levelBeginner').classList.add('completed');
+    if (completedLevels.intermediate) document.getElementById('levelIntermediate').classList.add('completed');
+    if (completedLevels.advanced) document.getElementById('levelAdvanced').classList.add('completed');
+}
+
+// =============== LEVEL SELECTION ===============
+function selectLevel(level) {
+    sound.play('click');
+    selectedLevel = level;
+
+    document.querySelectorAll('.level-card').forEach(card => card.classList.remove('selected'));
+    document.getElementById('level' + level.charAt(0).toUpperCase() + level.slice(1)).classList.add('selected');
+    document.getElementById('startLevelBtn').disabled = false;
+}
+
+function startSelectedLevel() {
+    if (!selectedLevel) return;
+    sound.play('click');
+    goToLevel(selectedLevel);
+}
+
+function goToLevel(level) {
+    sound.play('click');
+
+    // Hide all sections
+    document.getElementById('levelSelection').style.display = 'none';
+    document.getElementById('beginnerExperiment').classList.remove('active');
+    document.getElementById('intermediateExperiment').classList.remove('active');
+    document.getElementById('advancedExperiment').classList.remove('active');
+    document.getElementById('completionCard').style.display = 'none';
+
+    // ✅ إعادة تعيين المستوى قبل عرضه (الإصلاح الرئيسي)
+    resetLevelState(level);
+
+    // Show selected level
+    document.getElementById(level + 'Experiment').classList.add('active');
+
+    // Update selected level
+    selectedLevel = level;
+
+    notify(`🎯 المستوى: ${getLevelName(level)}`, 2000);
+}
+
+// ✅ دالة جديدة لإعادة تعيين حالة المستوى
+function resetLevelState(level) {
+    if (level === 'beginner') {
+        resetBeginnerState();
+    } else if (level === 'intermediate') {
+        resetIntermediateState();
+    } else if (level === 'advanced') {
+        resetAdvancedState();
+    }
+}
+
+function getLevelName(level) {
+    const names = {
+        beginner: 'المبتدئ - الدائرة البسيطة',
+        intermediate: 'المتوسط - المفتاح الكهربائي',
+        advanced: 'المتقدم - التوالي والتوازي'
+    };
+    return names[level] || level;
+}
+
+function goToLevelSelection() {
+    sound.play('click');
+
+    document.getElementById('levelSelection').style.display = 'block';
+    document.getElementById('beginnerExperiment').classList.remove('active');
+    document.getElementById('intermediateExperiment').classList.remove('active');
+    document.getElementById('advancedExperiment').classList.remove('active');
+
+    // Reset selection visuals but keep completed status
+    document.querySelectorAll('.level-card').forEach(card => card.classList.remove('selected'));
+    document.getElementById('startLevelBtn').disabled = true;
+    selectedLevel = null;
+    
+    // Update completion marks
+    updateProgress();
+}
+
+// =============== SET PREDICTION ===============
+function setPrediction(level, prediction) {
+    sound.play('click');
+    predictions[level] = prediction;
+
+    if (level === 'beginner') {
+        document.querySelectorAll('#beginnerExperiment .pred-btn').forEach(b => b.classList.remove('selected'));
+        document.getElementById(prediction === 'light' ? 'predLightOn' : 'predLightOff').classList.add('selected');
+        document.getElementById('beginnerStartBtn').disabled = false;
+    } else if (level === 'intermediate') {
+        document.querySelectorAll('#intermediateExperiment .pred-btn').forEach(b => b.classList.remove('selected'));
+        document.getElementById(prediction === 'light' ? 'predSwitchLight' : 'predSwitchNoLight').classList.add('selected');
+        document.getElementById('intermediateStartBtn').disabled = false;
+    } else if (level === 'advanced') {
+        document.querySelectorAll('#advancedExperiment .pred-btn').forEach(b => b.classList.remove('selected'));
+        document.getElementById(prediction === 'equal' ? 'predEqual' : 'predWeak').classList.add('selected');
+        document.getElementById('advancedStartBtn').disabled = false;
+    }
+}
+
+// =============== BEGINNER EXPERIMENT ===============
+function runBeginnerExperiment() {
+    if (!predictions.beginner) return;
+    sound.play('click');
+    experimentStarted.beginner = true;
+
+    document.getElementById('beginnerStartBtn').disabled = true;
+    document.querySelectorAll('#beginnerExperiment .pred-btn').forEach(b => b.disabled = true);
+
+    // Animate wires connecting
+    setTimeout(() => {
+        activateWires('beginner');
+        sound.play('electric');
+    }, 500);
+
+    // Turn on bulb
+    setTimeout(() => {
+        document.getElementById('beginnerBulb').classList.add('on');
+        document.getElementById('beginnerStatus').className = 'circuit-status closed';
+        document.getElementById('beginnerStatus').textContent = '🟢 الدائرة مغلقة - التيار يمر';
+        sound.play('bulbOn');
+    }, 1500);
+
+    // Show result
+    setTimeout(() => {
+        showBeginnerResult();
+    }, 2500);
+}
+
+function activateWires(level) {
+    if (level === 'beginner') {
+        document.getElementById('wireTop1').classList.add('active');
+        document.getElementById('wireBottom1').classList.add('active');
+        document.getElementById('wireRightTop1').classList.add('active');
+        document.getElementById('wireRightBottom1').classList.add('active');
+        document.getElementById('wireLeftTop1').classList.add('active');
+        document.getElementById('wireLeftBottom1').classList.add('active');
+    }
+}
+
+function showBeginnerResult() {
+    const correct = predictions.beginner === 'light';
+    const resultBox = document.getElementById('beginnerResult');
+    const resultIcon = document.getElementById('beginnerResultIcon');
+    const resultTitle = document.getElementById('beginnerResultTitle');
+    const resultDesc = document.getElementById('beginnerResultDesc');
+
+    if (correct) {
+        resultBox.className = 'result-box visible correct';
+        resultIcon.textContent = '🎉';
+        resultTitle.textContent = 'إجابة صحيحة!';
+        resultDesc.textContent = 'أحسنت! عند توصيل البطارية باللمبة بشكل صحيح، تكتمل الدائرة وتضيء اللمبة';
+        sound.play('success');
+        createConfetti();
+    } else {
+        resultBox.className = 'result-box visible wrong';
+        resultIcon.textContent = '❌';
+        resultTitle.textContent = 'إجابة خاطئة';
+        resultDesc.textContent = 'اللمبة أضاءت لأن الدائرة مكتملة والتيار يمر من البطارية عبر الأسلاك إلى اللمبة';
+        sound.play('error');
+    }
+
+    document.getElementById('beginnerExplanation').classList.add('visible');
+    document.getElementById('beginnerResetBtn').classList.add('visible');
+    document.getElementById('beginnerNextBtn').classList.add('visible');
+    
+    resultShown.beginner = true;
+
+    // Mark as completed
+    if (!completedLevels.beginner) {
+        completedLevels.beginner = true;
+        updateProgress();
+    }
+}
+
+// ✅ دالة إعادة تعيين حالة المستوى المبتدئ (بدون إظهار رسالة)
+function resetBeginnerState() {
+    predictions.beginner = null;
+    experimentStarted.beginner = false;
+    resultShown.beginner = false;
+
+    // Reset UI
+    document.querySelectorAll('#beginnerExperiment .pred-btn').forEach(b => {
+        b.classList.remove('selected');
+        b.disabled = false;
+    });
+    document.getElementById('beginnerStartBtn').disabled = true;
+
+    // Reset circuit
+    document.getElementById('beginnerBulb').classList.remove('on');
+    document.getElementById('beginnerStatus').className = 'circuit-status open';
+    document.getElementById('beginnerStatus').textContent = '🔴 الدائرة مفتوحة';
+
+    // Reset wires
+    document.getElementById('wireTop1').classList.remove('active');
+    document.getElementById('wireBottom1').classList.remove('active');
+    document.getElementById('wireRightTop1').classList.remove('active');
+    document.getElementById('wireRightBottom1').classList.remove('active');
+    document.getElementById('wireLeftTop1').classList.remove('active');
+    document.getElementById('wireLeftBottom1').classList.remove('active');
+
+    // Hide results
+    document.getElementById('beginnerResult').className = 'result-box';
+    document.getElementById('beginnerExplanation').classList.remove('visible');
+    document.getElementById('beginnerResetBtn').classList.remove('visible');
+    document.getElementById('beginnerNextBtn').classList.remove('visible');
+}
+
+function resetBeginner() {
+    sound.play('click');
+    resetBeginnerState();
+    notify('🔄 تم إعادة التجربة', 2000);
+}
+
+// =============== INTERMEDIATE EXPERIMENT ===============
+function runIntermediateExperiment() {
+    if (!predictions.intermediate) return;
+    sound.play('click');
+    experimentStarted.intermediate = true;
+
+    document.getElementById('intermediateStartBtn').disabled = true;
+    document.querySelectorAll('#intermediateExperiment .pred-btn').forEach(b => b.disabled = true);
+    document.getElementById('intermediateInstruction').textContent = '👆 اضغط على المفتاح لإغلاق الدائرة';
+
+    notify('👆 اضغط على المفتاح لإغلاق الدائرة', 3000);
+}
+
+function toggleSwitch() {
+    if (!experimentStarted.intermediate) {
+        notify('⚠️ اختر توقعك أولاً ثم اضغط ابدأ التجربة', 2500);
+        return;
+    }
+
+    sound.play('switch');
+    switchClosed = !switchClosed;
+
+    const handle = document.getElementById('switchHandle');
+    const label = document.getElementById('switchLabel');
+    const bulb = document.getElementById('intermediateBulb');
+    const status = document.getElementById('intermediateStatus');
+
+    if (switchClosed) {
+        handle.classList.remove('open');
+        label.textContent = '🟢 المفتاح مغلق';
+        bulb.classList.add('on');
+        status.className = 'circuit-status closed';
+        status.textContent = '🟢 الدائرة مغلقة - التيار يمر';
+        sound.play('bulbOn');
+
+        // Activate wires
+        document.querySelectorAll('#intermediateCircuit .wire').forEach(w => w.classList.add('active'));
+
+        // Show result after first close (only once)
+        if (!resultShown.intermediate) {
+            setTimeout(() => showIntermediateResult(), 1000);
+        }
+    } else {
+        handle.classList.add('open');
+        label.textContent = '🔴 المفتاح مفتوح';
+        bulb.classList.remove('on');
+        status.className = 'circuit-status open';
+        status.textContent = '🔴 الدائرة مفتوحة - التيار متوقف';
+        sound.play('bulbOff');
+
+        // Deactivate wires
+        document.querySelectorAll('#intermediateCircuit .wire').forEach(w => w.classList.remove('active'));
+    }
+}
+
+function showIntermediateResult() {
+    const correct = predictions.intermediate === 'light';
+    const resultBox = document.getElementById('intermediateResult');
+    const resultIcon = document.getElementById('intermediateResultIcon');
+    const resultTitle = document.getElementById('intermediateResultTitle');
+    const resultDesc = document.getElementById('intermediateResultDesc');
+
+    if (correct) {
+        resultBox.className = 'result-box visible correct';
+        resultIcon.textContent = '🎉';
+        resultTitle.textContent = 'إجابة صحيحة!';
+        resultDesc.textContent = 'أحسنت! عند غلق المفتاح تكتمل الدائرة ويمر التيار فتضيء اللمبة';
+        sound.play('success');
+        createConfetti();
+    } else {
+        resultBox.className = 'result-box visible wrong';
+        resultIcon.textContent = '❌';
+        resultTitle.textContent = 'إجابة خاطئة';
+        resultDesc.textContent = 'اللمبة أضاءت لأن غلق المفتاح يكمل الدائرة ويسمح للتيار بالمرور';
+        sound.play('error');
+    }
+
+    document.getElementById('intermediateExplanation').classList.add('visible');
+    document.getElementById('intermediateResetBtn').classList.add('visible');
+    document.getElementById('intermediateNextBtn').classList.add('visible');
+    
+    resultShown.intermediate = true;
+
+    // Mark as completed
+    if (!completedLevels.intermediate) {
+        completedLevels.intermediate = true;
+        updateProgress();
+    }
+}
+
+// ✅ دالة إعادة تعيين حالة المستوى المتوسط
+function resetIntermediateState() {
+    predictions.intermediate = null;
+    experimentStarted.intermediate = false;
+    resultShown.intermediate = false;
+    switchClosed = false;
+
+    // Reset UI
+    document.querySelectorAll('#intermediateExperiment .pred-btn').forEach(b => {
+        b.classList.remove('selected');
+        b.disabled = false;
+    });
+    document.getElementById('intermediateStartBtn').disabled = true;
+    document.getElementById('intermediateInstruction').textContent = 'اختر توقعك ثم اضغط ابدأ التجربة';
+
+    // Reset switch
+    document.getElementById('switchHandle').classList.add('open');
+    document.getElementById('switchLabel').textContent = '🔴 المفتاح مفتوح';
+
+    // Reset circuit
+    document.getElementById('intermediateBulb').classList.remove('on');
+    document.getElementById('intermediateStatus').className = 'circuit-status open';
+    document.getElementById('intermediateStatus').textContent = '🔴 الدائرة مفتوحة';
+
+    // Reset wires
+    document.querySelectorAll('#intermediateCircuit .wire').forEach(w => w.classList.remove('active'));
+
+    // Hide results
+    document.getElementById('intermediateResult').className = 'result-box';
+    document.getElementById('intermediateExplanation').classList.remove('visible');
+    document.getElementById('intermediateResetBtn').classList.remove('visible');
+    document.getElementById('intermediateNextBtn').classList.remove('visible');
+}
+
+function resetIntermediate() {
+    sound.play('click');
+    resetIntermediateState();
+    notify('🔄 تم إعادة التجربة', 2000);
+}
+
+// =============== ADVANCED EXPERIMENT ===============
+function selectCircuitType(type) {
+    if (experimentStarted.advanced && resultShown.advanced) {
+        // إذا التجربة انتهت، نعيد تعيينها عند تغيير النوع
+        resetAdvancedState();
+    }
+    
+    sound.play('click');
+    circuitType = type;
+
+    document.getElementById('seriesBtn').classList.toggle('active', type === 'series');
+    document.getElementById('parallelBtn').classList.toggle('active', type === 'parallel');
+
+    document.getElementById('seriesInfo').classList.toggle('hidden', type !== 'series');
+    document.getElementById('parallelInfo').classList.toggle('hidden', type !== 'parallel');
+
+    // Update question
+    if (type === 'series') {
+        document.getElementById('advancedQuestion').textContent = '❓ في دائرة التوالي، كيف ستكون إضاءة اللمبتين؟';
+        document.getElementById('advancedInstruction').textContent = 'شاهد كيف تعمل دائرة التوالي';
+    } else {
+        document.getElementById('advancedQuestion').textContent = '❓ في دائرة التوازي، كيف ستكون إضاءة اللمبتين؟';
+        document.getElementById('advancedInstruction').textContent = 'شاهد كيف تعمل دائرة التوازي';
+    }
+
+    // Reset prediction buttons
+    predictions.advanced = null;
+    document.querySelectorAll('#advancedExperiment .pred-btn').forEach(b => {
+        b.classList.remove('selected');
+        b.disabled = false;
+    });
+    document.getElementById('advancedStartBtn').disabled = true;
+}
+
+function runAdvancedExperiment() {
+    if (!predictions.advanced) return;
+    sound.play('click');
+    experimentStarted.advanced = true;
+
+    document.getElementById('advancedStartBtn').disabled = true;
+    document.querySelectorAll('#advancedExperiment .pred-btn').forEach(b => b.disabled = true);
+    document.querySelectorAll('.circuit-type-btn').forEach(b => b.disabled = true);
+
+    const bulb1 = document.getElementById('advancedBulb1');
+    const bulb2 = document.getElementById('advancedBulb2');
+    const status = document.getElementById('advancedStatus');
+
+    // Animate
+    setTimeout(() => {
+        sound.play('electric');
+        // Activate wires
+        document.querySelectorAll('#advancedCircuit .wire').forEach(w => w.classList.add('active'));
+    }, 500);
+
+    setTimeout(() => {
+        if (circuitType === 'series') {
+            // Series: dimmer light
+            bulb1.classList.add('on', 'dim');
+            bulb2.classList.add('on', 'dim');
+            status.className = 'circuit-status closed';
+            status.innerHTML = '🔗 توالي: إضاءة <strong>ضعيفة</strong> - مسار واحد';
+        } else {
+            // Parallel: full brightness
+            bulb1.classList.add('on');
+            bulb1.classList.remove('dim');
+            bulb2.classList.add('on');
+            bulb2.classList.remove('dim');
+            status.className = 'circuit-status closed';
+            status.innerHTML = '🔀 توازي: إضاءة <strong>قوية</strong> - مسارات متعددة';
+        }
+        sound.play('bulbOn');
+    }, 1500);
+
+    setTimeout(() => {
+        showAdvancedResult();
+    }, 2500);
+}
+
+function showAdvancedResult() {
+    let correct = false;
+
+    if (circuitType === 'series') {
+        correct = predictions.advanced === 'weak';
+    } else {
+        correct = predictions.advanced === 'equal';
+    }
+
+    const resultBox = document.getElementById('advancedResult');
+    const resultIcon = document.getElementById('advancedResultIcon');
+    const resultTitle = document.getElementById('advancedResultTitle');
+    const resultDesc = document.getElementById('advancedResultDesc');
+
+    if (correct) {
+        resultBox.className = 'result-box visible correct';
+        resultIcon.textContent = '🎉';
+        resultTitle.textContent = 'إجابة صحيحة!';
+        if (circuitType === 'series') {
+            resultDesc.textContent = 'أحسنت! في دائرة التوالي، الجهد يتوزع بين اللمبتين فتكون الإضاءة أضعف';
+        } else {
+            resultDesc.textContent = 'أحسنت! في دائرة التوازي، كل لمبة تحصل على الجهد الكامل فتكون الإضاءة قوية ومتساوية';
+        }
+        sound.play('success');
+        createConfetti();
+    } else {
+        resultBox.className = 'result-box visible wrong';
+        resultIcon.textContent = '❌';
+        resultTitle.textContent = 'إجابة خاطئة';
+        if (circuitType === 'series') {
+            resultDesc.textContent = 'في دائرة التوالي، الإضاءة تكون ضعيفة لأن الجهد يتوزع بين اللمبتين';
+        } else {
+            resultDesc.textContent = 'في دائرة التوازي، الإضاءة تكون قوية ومتساوية لأن كل لمبة لها مسار مستقل';
+        }
+        sound.play('error');
+    }
+
+    // Update explanation
+    if (circuitType === 'series') {
+        document.getElementById('advancedExplanationText').textContent = 'في دائرة التوالي، التيار يمر في مسار واحد فقط عبر جميع المكونات. الجهد الكهربائي يتوزع بين اللمبتين، لذلك تقل شدة الإضاءة. إذا احترقت لمبة واحدة، تنقطع الدائرة بالكامل وتنطفئ اللمبتان.';
+    } else {
+        document.getElementById('advancedExplanationText').textContent = 'في دائرة التوازي، كل لمبة لها مسار مستقل. كل لمبة تحصل على الجهد الكامل من البطارية، لذلك تكون الإضاءة قوية. إذا احترقت لمبة واحدة، تستمر الأخرى في العمل لأن لها مساراً مستقلاً.';
+    }
+
+    document.getElementById('advancedExplanation').classList.add('visible');
+    document.getElementById('advancedResetBtn').classList.add('visible');
+    document.getElementById('advancedNextBtn').classList.add('visible');
+    
+    resultShown.advanced = true;
+
+    // Mark as completed
+    if (!completedLevels.advanced) {
+        completedLevels.advanced = true;
+        updateProgress();
+    }
+}
+
+// ✅ دالة إعادة تعيين حالة المستوى المتقدم
+function resetAdvancedState() {
+    predictions.advanced = null;
+    experimentStarted.advanced = false;
+    resultShown.advanced = false;
+
+    // Reset UI
+    document.querySelectorAll('#advancedExperiment .pred-btn').forEach(b => {
+        b.classList.remove('selected');
+        b.disabled = false;
+    });
+    document.querySelectorAll('.circuit-type-btn').forEach(b => b.disabled = false);
+    document.getElementById('advancedStartBtn').disabled = true;
+
+    // Reset circuit
+    const bulb1 = document.getElementById('advancedBulb1');
+    const bulb2 = document.getElementById('advancedBulb2');
+    bulb1.classList.remove('on', 'dim');
+    bulb2.classList.remove('on', 'dim');
+
+    document.getElementById('advancedStatus').className = 'circuit-status open';
+    document.getElementById('advancedStatus').textContent = 'شاهد التجربة';
+
+    // Reset wires
+    document.querySelectorAll('#advancedCircuit .wire').forEach(w => w.classList.remove('active'));
+
+    // Hide results
+    document.getElementById('advancedResult').className = 'result-box';
+    document.getElementById('advancedExplanation').classList.remove('visible');
+    document.getElementById('advancedResetBtn').classList.remove('visible');
+    document.getElementById('advancedNextBtn').classList.remove('visible');
+}
+
+function resetAdvanced() {
+    sound.play('click');
+    resetAdvancedState();
+    notify('🔄 تم إعادة التجربة', 2000);
+}
+
+// =============== COMPLETION ===============
+function completeAllLevels() {
+    sound.play('complete');
+
+    document.getElementById('advancedExperiment').classList.remove('active');
+    document.getElementById('levelSelection').style.display = 'none';
+    document.getElementById('completionCard').style.display = 'block';
+
+    createConfetti();
+    setTimeout(() => createConfetti(), 500);
+    setTimeout(() => createConfetti(), 1000);
+
+    notify('🏆 مبروك! أكملت جميع المستويات!', 4000);
+}
+
+function restartAll() {
+    sound.play('click');
+
+    // Reset all states
+    predictions = { beginner: null, intermediate: null, advanced: null };
+    completedLevels = { beginner: false, intermediate: false, advanced: false };
+    experimentStarted = { beginner: false, intermediate: false, advanced: false };
+    resultShown = { beginner: false, intermediate: false, advanced: false };
+    switchClosed = false;
+    circuitType = 'series';
+    selectedLevel = null;
+
+    // Reset all levels
+    resetBeginnerState();
+    resetIntermediateState();
+    resetAdvancedState();
+
+    // Reset circuit type selector
+    document.getElementById('seriesBtn').classList.add('active');
+    document.getElementById('parallelBtn').classList.remove('active');
+    document.getElementById('seriesInfo').classList.remove('hidden');
+    document.getElementById('parallelInfo').classList.add('hidden');
+
+    // Reset progress
+    document.getElementById('progressBar').style.width = '0%';
+    document.getElementById('progressText').textContent = '0/3';
+
+    // Remove completed marks
+    document.querySelectorAll('.level-card').forEach(card => {
+        card.classList.remove('selected', 'completed');
+    });
+
+    // Show level selection
+    document.getElementById('completionCard').style.display = 'none';
+    document.getElementById('levelSelection').style.display = 'block';
+    document.getElementById('startLevelBtn').disabled = true;
+
+    notify('🔄 تم إعادة جميع المستويات! ابدأ من جديد', 3000);
+}
+
+// =============== INIT ===============
+document.addEventListener('DOMContentLoaded', () => {
+    notify('👋 مرحباً! اختر المستوى لتبدأ رحلتك في عالم الكهرباء ⚡', 4000);
+});
+</script>
+
+</body>
+</html>
+    

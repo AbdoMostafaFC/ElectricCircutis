@@ -261,15 +261,12 @@
         /* Bulb */
         .bulb {
             position: absolute;
-            width: 80px;
-            height: 120px;
-            top: 50%;
-            left: 30px;
-            transform: translateY(-50%);
+            width: 70px;
+            height: 100px;
         }
         .bulb-glass {
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
             background: rgba(255,255,255,0.1);
             border: 3px solid rgba(255,255,255,0.3);
             border-radius: 50%;
@@ -292,27 +289,27 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 20px;
-            height: 30px;
+            width: 15px;
+            height: 20px;
             border: 2px solid rgba(255,255,255,0.3);
             border-radius: 50%;
         }
-        .bulb-glass.on .bulb-filament {
+        .bulb-glass.on .bulb-filament, .bulb-glass.dim .bulb-filament {
             border-color: #fef9c3;
             box-shadow: 0 0 10px #fef08a;
         }
         .bulb-base {
-            width: 30px;
-            height: 25px;
+            width: 25px;
+            height: 20px;
             background: linear-gradient(90deg, #6b7280, #9ca3af, #6b7280);
             border-radius: 0 0 5px 5px;
-            margin: -5px auto 0;
+            margin: -3px auto 0;
         }
         .bulb-label {
             text-align: center;
             color: white;
-            font-size: 0.8em;
-            margin-top: 10px;
+            font-size: 0.75em;
+            margin-top: 5px;
         }
 
         /* Wires */
@@ -326,48 +323,12 @@
             box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
         }
 
-        .wire-top {
-            height: 6px;
-            top: 80px;
-            right: 90px;
-            left: 90px;
-            border-radius: 3px;
-        }
-        .wire-bottom {
-            height: 6px;
-            bottom: 80px;
-            right: 90px;
-            left: 90px;
-            border-radius: 3px;
-        }
-        .wire-right-top {
-            width: 6px;
-            height: 90px;
-            top: 80px;
-            right: 87px;
-            border-radius: 3px;
-        }
-        .wire-right-bottom {
-            width: 6px;
-            height: 90px;
-            bottom: 80px;
-            right: 87px;
-            border-radius: 3px;
-        }
-        .wire-left-top {
-            width: 6px;
-            height: 90px;
-            top: 80px;
-            left: 87px;
-            border-radius: 3px;
-        }
-        .wire-left-bottom {
-            width: 6px;
-            height: 90px;
-            bottom: 80px;
-            left: 87px;
-            border-radius: 3px;
-        }
+        .wire-top { height: 6px; top: 80px; right: 90px; left: 90px; border-radius: 3px; }
+        .wire-bottom { height: 6px; bottom: 80px; right: 90px; left: 90px; border-radius: 3px; }
+        .wire-right-top { width: 6px; height: 90px; top: 80px; right: 87px; border-radius: 3px; }
+        .wire-right-bottom { width: 6px; height: 90px; bottom: 80px; right: 87px; border-radius: 3px; }
+        .wire-left-top { width: 6px; height: 90px; top: 80px; left: 87px; border-radius: 3px; }
+        .wire-left-bottom { width: 6px; height: 90px; bottom: 80px; left: 87px; border-radius: 3px; }
 
         /* Switch */
         .switch-container {
@@ -378,7 +339,6 @@
             cursor: pointer;
             z-index: 10;
         }
-
         .switch-base {
             width: 60px;
             height: 20px;
@@ -397,9 +357,7 @@
             transition: transform 0.3s;
             border-radius: 4px;
         }
-        .switch-handle.open {
-            transform: rotate(-30deg);
-        }
+        .switch-handle.open { transform: rotate(-30deg); }
         .switch-contact-left, .switch-contact-right {
             width: 12px;
             height: 12px;
@@ -426,7 +384,8 @@
             padding: 10px 25px;
             border-radius: 25px;
             font-weight: 700;
-            font-size: 0.9em;
+            font-size: 0.85em;
+            white-space: nowrap;
         }
         .circuit-status.open {
             background: rgba(239, 68, 68, 0.2);
@@ -460,16 +419,6 @@
         .circuit-type-btn:hover { border-color: var(--primary); }
         .circuit-type-btn.active { border-color: var(--success); background: rgba(16, 185, 129, 0.1); }
         .circuit-type-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-        /* Second Bulb */
-        .bulb2 {
-            position: absolute;
-            width: 80px;
-            height: 120px;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
 
         /* Result Box */
         .result-box {
@@ -615,6 +564,15 @@
 
         /* Hidden */
         .hidden { display: none !important; }
+
+        /* Circuit Diagrams */
+        .circuit-diagram {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
     </style>
 </head>
 <body>
@@ -746,7 +704,7 @@
                         <div class="battery-label">🔋 البطارية</div>
                     </div>
 
-                    <div class="bulb">
+                    <div class="bulb" style="top: 50%; left: 30px; transform: translateY(-50%);">
                         <div class="bulb-glass" id="beginnerBulb">
                             <div class="bulb-filament"></div>
                         </div>
@@ -865,7 +823,7 @@
                         <div class="battery-label">🔋 البطارية</div>
                     </div>
 
-                    <div class="bulb">
+                    <div class="bulb" style="top: 50%; left: 30px; transform: translateY(-50%);">
                         <div class="bulb-glass" id="intermediateBulb">
                             <div class="bulb-filament"></div>
                         </div>
@@ -944,7 +902,7 @@
                         <h4>🔀 دائرة التوازي (Parallel Circuit)</h4>
                         <p>هي دائرة تحتوي على <strong>أكثر من مسار</strong> لمرور التيار.</p>
                         <ul>
-                            <li>اللمبتان تضيئان <strong>بقوة متساوية</strong></li>
+                            <li>اللمبتان تضيئان <strong>بقوة متساوية وكاملة</strong></li>
                             <li>عند فصل أو احتراق لمبة:</li>
                             <li style="margin-right: 20px; list-style: circle;">اللمبة الأخرى تظل مضيئة</li>
                             <li style="margin-right: 20px; list-style: circle;">كل لمبة لها مسار مستقل</li>
@@ -1003,40 +961,87 @@
                 </p>
 
                 <div class="circuit-container" id="advancedCircuit">
-                    <div class="battery" style="right: 20px;">
-                        <div class="battery-body">
-                            <span class="battery-plus">+</span>
-                            <span class="battery-minus">−</span>
-                        </div>
-                        <div class="battery-top"></div>
-                        <div class="battery-label">🔋 البطارية</div>
-                    </div>
-
-                    <div class="bulb" style="left: 20px;">
-                        <div class="bulb-glass" id="advancedBulb1">
-                            <div class="bulb-filament"></div>
-                        </div>
-                        <div class="bulb-base"></div>
-                        <div class="bulb-label">💡 لمبة 1</div>
-                    </div>
-
-                    <div class="bulb2" id="bulb2Container">
-                        <div class="bulb-glass" id="advancedBulb2">
-                            <div class="bulb-filament"></div>
-                        </div>
-                        <div class="bulb-base"></div>
-                        <div class="bulb-label">💡 لمبة 2</div>
-                    </div>
-
-                    <div class="wire" id="advWire1" style="position: absolute; height: 6px; top: 80px; right: 80px; width: 80px;"></div>
-                    <div class="wire" id="advWire2" style="position: absolute; width: 6px; height: 60px; top: 80px; right: 77px;"></div>
-                    <div class="wire" id="advWire3" style="position: absolute; height: 6px; top: 140px; right: 80px; left: 50%;"></div>
-                    <div class="wire" id="advWire4" style="position: absolute; width: 6px; height: 60px; top: 140px; left: 50%;"></div>
-                    <div class="wire" id="advWire5" style="position: absolute; height: 6px; top: 200px; left: 80px; right: 50%;"></div>
-                    <div class="wire" id="advWire6" style="position: absolute; width: 6px; height: 60px; top: 200px; left: 77px;"></div>
-                    <div class="wire" id="advWire7" style="position: absolute; height: 6px; bottom: 80px; left: 80px; right: 80px;"></div>
-                    <div class="wire" id="advWire8" style="position: absolute; width: 6px; height: 60px; bottom: 80px; right: 77px;"></div>
-
+                    <!-- سيتم رسم الدائرة بـ SVG -->
+                    <svg id="circuitSVG" width="100%" height="100%" viewBox="0 0 400 400">
+                        <!-- Series Circuit (default) -->
+                        <g id="seriesCircuit">
+                            <!-- Battery -->
+                            <rect x="320" y="160" width="40" height="80" rx="5" fill="#22c55e" stroke="#16a34a" stroke-width="2"/>
+                            <rect x="330" y="150" width="20" height="12" rx="2" fill="#86efac"/>
+                            <text x="340" y="185" text-anchor="middle" fill="white" font-size="18" font-weight="bold">+</text>
+                            <text x="340" y="225" text-anchor="middle" fill="white" font-size="18" font-weight="bold">−</text>
+                            <text x="340" y="260" text-anchor="middle" fill="white" font-size="10">🔋 البطارية</text>
+                            
+                            <!-- Wires - Series -->
+                            <path id="seriesWire" d="M 340 160 L 340 80 L 200 80 L 200 140" 
+                                  fill="none" stroke="#64748b" stroke-width="6" stroke-linecap="round"/>
+                            <path id="seriesWire2" d="M 200 200 L 200 260 L 80 260 L 80 200" 
+                                  fill="none" stroke="#64748b" stroke-width="6" stroke-linecap="round"/>
+                            <path id="seriesWire3" d="M 80 140 L 80 80 L 40 80 L 40 320 L 340 320 L 340 240" 
+                                  fill="none" stroke="#64748b" stroke-width="6" stroke-linecap="round"/>
+                            
+                            <!-- Bulb 1 - Series (in middle top) -->
+                            <circle id="seriesBulb1" cx="200" cy="170" r="28" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.3)" stroke-width="3"/>
+                            <ellipse cx="200" cy="170" rx="10" ry="15" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+                            <rect x="188" y="195" width="24" height="18" rx="2" fill="linear-gradient(90deg, #6b7280, #9ca3af)"/>
+                            <text x="200" y="235" text-anchor="middle" fill="white" font-size="10">💡 لمبة 1</text>
+                            
+                            <!-- Bulb 2 - Series (in middle bottom) -->
+                            <circle id="seriesBulb2" cx="80" cy="170" r="28" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.3)" stroke-width="3"/>
+                            <ellipse cx="80" cy="170" rx="10" ry="15" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+                            <rect x="68" y="195" width="24" height="18" rx="2" fill="linear-gradient(90deg, #6b7280, #9ca3af)"/>
+                            <text x="80" y="235" text-anchor="middle" fill="white" font-size="10">💡 لمبة 2</text>
+                        </g>
+                        
+                        <!-- Parallel Circuit (hidden by default) -->
+                        <g id="parallelCircuit" style="display: none;">
+                            <!-- Battery -->
+                            <rect x="320" y="160" width="40" height="80" rx="5" fill="#22c55e" stroke="#16a34a" stroke-width="2"/>
+                            <rect x="330" y="150" width="20" height="12" rx="2" fill="#86efac"/>
+                            <text x="340" y="185" text-anchor="middle" fill="white" font-size="18" font-weight="bold">+</text>
+                            <text x="340" y="225" text-anchor="middle" fill="white" font-size="18" font-weight="bold">−</text>
+                            <text x="340" y="260" text-anchor="middle" fill="white" font-size="10">🔋 البطارية</text>
+                            
+                            <!-- Main Wires - Parallel -->
+                            <path id="parallelWireTop" d="M 340 160 L 340 60 L 120 60" 
+                                  fill="none" stroke="#64748b" stroke-width="6" stroke-linecap="round"/>
+                            <path id="parallelWireBottom" d="M 340 240 L 340 340 L 120 340" 
+                                  fill="none" stroke="#64748b" stroke-width="6" stroke-linecap="round"/>
+                            
+                            <!-- Branch Wire 1 (top bulb) -->
+                            <path id="parallelBranch1" d="M 120 60 L 120 120" 
+                                  fill="none" stroke="#64748b" stroke-width="6" stroke-linecap="round"/>
+                            <path id="parallelBranch1b" d="M 120 180 L 120 340" 
+                                  fill="none" stroke="#64748b" stroke-width="6" stroke-linecap="round"/>
+                            
+                            <!-- Branch Wire 2 (bottom bulb) -->
+                            <path id="parallelBranch2" d="M 220 60 L 220 120" 
+                                  fill="none" stroke="#64748b" stroke-width="6" stroke-linecap="round"/>
+                            <path id="parallelBranch2b" d="M 220 180 L 220 340" 
+                                  fill="none" stroke="#64748b" stroke-width="6" stroke-linecap="round"/>
+                            
+                            <!-- Connection lines -->
+                            <line x1="120" y1="60" x2="220" y2="60" stroke="#64748b" stroke-width="6" stroke-linecap="round"/>
+                            <line x1="120" y1="340" x2="220" y2="340" stroke="#64748b" stroke-width="6" stroke-linecap="round"/>
+                            
+                            <!-- Bulb 1 - Parallel (left) -->
+                            <circle id="parallelBulb1" cx="120" cy="150" r="28" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.3)" stroke-width="3"/>
+                            <ellipse cx="120" cy="150" rx="10" ry="15" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+                            <rect x="108" y="175" width="24" height="18" rx="2" fill="#6b7280"/>
+                            <text x="120" y="215" text-anchor="middle" fill="white" font-size="10">💡 لمبة 1</text>
+                            
+                            <!-- Bulb 2 - Parallel (right) -->
+                            <circle id="parallelBulb2" cx="220" cy="150" r="28" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.3)" stroke-width="3"/>
+                            <ellipse cx="220" cy="150" rx="10" ry="15" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+                            <rect x="208" y="175" width="24" height="18" rx="2" fill="#6b7280"/>
+                            <text x="220" y="215" text-anchor="middle" fill="white" font-size="10">💡 لمبة 2</text>
+                            
+                            <!-- Parallel indicator arrows -->
+                            <text x="170" y="30" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="12">مسار 1 ↓</text>
+                            <text x="170" y="380" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="12">↑ مسار 2</text>
+                        </g>
+                    </svg>
+                    
                     <div class="circuit-status open" id="advancedStatus">شاهد التجربة</div>
                 </div>
 
@@ -1102,7 +1107,7 @@ class Sound {
                 g.gain.setValueAtTime(0, t + i * 0.1);
                 g.gain.linearRampToValueAtTime(0.2, t + i * 0.1 + 0.05);
                 g.gain.linearRampToValueAtTime(0, t + i * 0.1 + 0.3);
-                o.start(t + i * 0.1); o.stop(t + i * 0.1 + 0.3);
+                              o.start(t + i * 0.1); o.stop(t + i * 0.1 + 0.3);
             });
         }
         if (type === 'error') {
@@ -1221,7 +1226,6 @@ function updateProgress() {
     document.getElementById('progressBar').style.width = percent + '%';
     document.getElementById('progressText').textContent = `${completed}/${total}`;
     
-    // Update level cards to show completion
     if (completedLevels.beginner) document.getElementById('levelBeginner').classList.add('completed');
     if (completedLevels.intermediate) document.getElementById('levelIntermediate').classList.add('completed');
     if (completedLevels.advanced) document.getElementById('levelAdvanced').classList.add('completed');
@@ -1246,34 +1250,25 @@ function startSelectedLevel() {
 function goToLevel(level) {
     sound.play('click');
 
-    // Hide all sections
     document.getElementById('levelSelection').style.display = 'none';
     document.getElementById('beginnerExperiment').classList.remove('active');
     document.getElementById('intermediateExperiment').classList.remove('active');
     document.getElementById('advancedExperiment').classList.remove('active');
     document.getElementById('completionCard').style.display = 'none';
 
-    // ✅ إعادة تعيين المستوى قبل عرضه (الإصلاح الرئيسي)
+    // Reset level state before showing
     resetLevelState(level);
 
-    // Show selected level
     document.getElementById(level + 'Experiment').classList.add('active');
-
-    // Update selected level
     selectedLevel = level;
 
     notify(`🎯 المستوى: ${getLevelName(level)}`, 2000);
 }
 
-// ✅ دالة جديدة لإعادة تعيين حالة المستوى
 function resetLevelState(level) {
-    if (level === 'beginner') {
-        resetBeginnerState();
-    } else if (level === 'intermediate') {
-        resetIntermediateState();
-    } else if (level === 'advanced') {
-        resetAdvancedState();
-    }
+    if (level === 'beginner') resetBeginnerState();
+    else if (level === 'intermediate') resetIntermediateState();
+    else if (level === 'advanced') resetAdvancedState();
 }
 
 function getLevelName(level) {
@@ -1293,12 +1288,10 @@ function goToLevelSelection() {
     document.getElementById('intermediateExperiment').classList.remove('active');
     document.getElementById('advancedExperiment').classList.remove('active');
 
-    // Reset selection visuals but keep completed status
     document.querySelectorAll('.level-card').forEach(card => card.classList.remove('selected'));
     document.getElementById('startLevelBtn').disabled = true;
     selectedLevel = null;
     
-    // Update completion marks
     updateProgress();
 }
 
@@ -1331,13 +1324,11 @@ function runBeginnerExperiment() {
     document.getElementById('beginnerStartBtn').disabled = true;
     document.querySelectorAll('#beginnerExperiment .pred-btn').forEach(b => b.disabled = true);
 
-    // Animate wires connecting
     setTimeout(() => {
         activateWires('beginner');
         sound.play('electric');
     }, 500);
 
-    // Turn on bulb
     setTimeout(() => {
         document.getElementById('beginnerBulb').classList.add('on');
         document.getElementById('beginnerStatus').className = 'circuit-status closed';
@@ -1345,7 +1336,6 @@ function runBeginnerExperiment() {
         sound.play('bulbOn');
     }, 1500);
 
-    // Show result
     setTimeout(() => {
         showBeginnerResult();
     }, 2500);
@@ -1390,32 +1380,27 @@ function showBeginnerResult() {
     
     resultShown.beginner = true;
 
-    // Mark as completed
     if (!completedLevels.beginner) {
         completedLevels.beginner = true;
         updateProgress();
     }
 }
 
-// ✅ دالة إعادة تعيين حالة المستوى المبتدئ (بدون إظهار رسالة)
 function resetBeginnerState() {
     predictions.beginner = null;
     experimentStarted.beginner = false;
     resultShown.beginner = false;
 
-    // Reset UI
     document.querySelectorAll('#beginnerExperiment .pred-btn').forEach(b => {
         b.classList.remove('selected');
         b.disabled = false;
     });
     document.getElementById('beginnerStartBtn').disabled = true;
 
-    // Reset circuit
     document.getElementById('beginnerBulb').classList.remove('on');
     document.getElementById('beginnerStatus').className = 'circuit-status open';
     document.getElementById('beginnerStatus').textContent = '🔴 الدائرة مفتوحة';
 
-    // Reset wires
     document.getElementById('wireTop1').classList.remove('active');
     document.getElementById('wireBottom1').classList.remove('active');
     document.getElementById('wireRightTop1').classList.remove('active');
@@ -1423,7 +1408,6 @@ function resetBeginnerState() {
     document.getElementById('wireLeftTop1').classList.remove('active');
     document.getElementById('wireLeftBottom1').classList.remove('active');
 
-    // Hide results
     document.getElementById('beginnerResult').className = 'result-box';
     document.getElementById('beginnerExplanation').classList.remove('visible');
     document.getElementById('beginnerResetBtn').classList.remove('visible');
@@ -1471,10 +1455,8 @@ function toggleSwitch() {
         status.textContent = '🟢 الدائرة مغلقة - التيار يمر';
         sound.play('bulbOn');
 
-        // Activate wires
         document.querySelectorAll('#intermediateCircuit .wire').forEach(w => w.classList.add('active'));
 
-        // Show result after first close (only once)
         if (!resultShown.intermediate) {
             setTimeout(() => showIntermediateResult(), 1000);
         }
@@ -1486,7 +1468,6 @@ function toggleSwitch() {
         status.textContent = '🔴 الدائرة مفتوحة - التيار متوقف';
         sound.play('bulbOff');
 
-        // Deactivate wires
         document.querySelectorAll('#intermediateCircuit .wire').forEach(w => w.classList.remove('active'));
     }
 }
@@ -1519,21 +1500,18 @@ function showIntermediateResult() {
     
     resultShown.intermediate = true;
 
-    // Mark as completed
     if (!completedLevels.intermediate) {
         completedLevels.intermediate = true;
         updateProgress();
     }
 }
 
-// ✅ دالة إعادة تعيين حالة المستوى المتوسط
 function resetIntermediateState() {
     predictions.intermediate = null;
     experimentStarted.intermediate = false;
     resultShown.intermediate = false;
     switchClosed = false;
 
-    // Reset UI
     document.querySelectorAll('#intermediateExperiment .pred-btn').forEach(b => {
         b.classList.remove('selected');
         b.disabled = false;
@@ -1541,19 +1519,15 @@ function resetIntermediateState() {
     document.getElementById('intermediateStartBtn').disabled = true;
     document.getElementById('intermediateInstruction').textContent = 'اختر توقعك ثم اضغط ابدأ التجربة';
 
-    // Reset switch
     document.getElementById('switchHandle').classList.add('open');
     document.getElementById('switchLabel').textContent = '🔴 المفتاح مفتوح';
 
-    // Reset circuit
     document.getElementById('intermediateBulb').classList.remove('on');
     document.getElementById('intermediateStatus').className = 'circuit-status open';
     document.getElementById('intermediateStatus').textContent = '🔴 الدائرة مفتوحة';
 
-    // Reset wires
     document.querySelectorAll('#intermediateCircuit .wire').forEach(w => w.classList.remove('active'));
 
-    // Hide results
     document.getElementById('intermediateResult').className = 'result-box';
     document.getElementById('intermediateExplanation').classList.remove('visible');
     document.getElementById('intermediateResetBtn').classList.remove('visible');
@@ -1569,7 +1543,6 @@ function resetIntermediate() {
 // =============== ADVANCED EXPERIMENT ===============
 function selectCircuitType(type) {
     if (experimentStarted.advanced && resultShown.advanced) {
-        // إذا التجربة انتهت، نعيد تعيينها عند تغيير النوع
         resetAdvancedState();
     }
     
@@ -1582,7 +1555,10 @@ function selectCircuitType(type) {
     document.getElementById('seriesInfo').classList.toggle('hidden', type !== 'series');
     document.getElementById('parallelInfo').classList.toggle('hidden', type !== 'parallel');
 
-    // Update question
+    // Toggle SVG circuits
+    document.getElementById('seriesCircuit').style.display = type === 'series' ? 'block' : 'none';
+    document.getElementById('parallelCircuit').style.display = type === 'parallel' ? 'block' : 'none';
+
     if (type === 'series') {
         document.getElementById('advancedQuestion').textContent = '❓ في دائرة التوالي، كيف ستكون إضاءة اللمبتين؟';
         document.getElementById('advancedInstruction').textContent = 'شاهد كيف تعمل دائرة التوالي';
@@ -1591,13 +1567,53 @@ function selectCircuitType(type) {
         document.getElementById('advancedInstruction').textContent = 'شاهد كيف تعمل دائرة التوازي';
     }
 
-    // Reset prediction buttons
     predictions.advanced = null;
     document.querySelectorAll('#advancedExperiment .pred-btn').forEach(b => {
         b.classList.remove('selected');
         b.disabled = false;
     });
     document.getElementById('advancedStartBtn').disabled = true;
+    
+    // Reset bulbs in SVG
+    resetSVGBulbs();
+}
+
+function resetSVGBulbs() {
+    // Reset series bulbs
+    const seriesBulb1 = document.getElementById('seriesBulb1');
+    const seriesBulb2 = document.getElementById('seriesBulb2');
+    if (seriesBulb1) {
+        seriesBulb1.setAttribute('fill', 'rgba(255,255,255,0.1)');
+        seriesBulb1.setAttribute('stroke', 'rgba(255,255,255,0.3)');
+        seriesBulb1.style.filter = '';
+    }
+    if (seriesBulb2) {
+        seriesBulb2.setAttribute('fill', 'rgba(255,255,255,0.1)');
+        seriesBulb2.setAttribute('stroke', 'rgba(255,255,255,0.3)');
+        seriesBulb2.style.filter = '';
+    }
+    
+    // Reset parallel bulbs
+    const parallelBulb1 = document.getElementById('parallelBulb1');
+    const parallelBulb2 = document.getElementById('parallelBulb2');
+    if (parallelBulb1) {
+        parallelBulb1.setAttribute('fill', 'rgba(255,255,255,0.1)');
+        parallelBulb1.setAttribute('stroke', 'rgba(255,255,255,0.3)');
+        parallelBulb1.style.filter = '';
+    }
+    if (parallelBulb2) {
+        parallelBulb2.setAttribute('fill', 'rgba(255,255,255,0.1)');
+        parallelBulb2.setAttribute('stroke', 'rgba(255,255,255,0.3)');
+        parallelBulb2.style.filter = '';
+    }
+    
+    // Reset wires
+    document.querySelectorAll('#circuitSVG path, #circuitSVG line').forEach(el => {
+        if (el.id && el.id.includes('Wire') || el.id && el.id.includes('Branch')) {
+            el.setAttribute('stroke', '#64748b');
+            el.style.filter = '';
+        }
+    });
 }
 
 function runAdvancedExperiment() {
@@ -1609,30 +1625,25 @@ function runAdvancedExperiment() {
     document.querySelectorAll('#advancedExperiment .pred-btn').forEach(b => b.disabled = true);
     document.querySelectorAll('.circuit-type-btn').forEach(b => b.disabled = true);
 
-    const bulb1 = document.getElementById('advancedBulb1');
-    const bulb2 = document.getElementById('advancedBulb2');
     const status = document.getElementById('advancedStatus');
 
-    // Animate
     setTimeout(() => {
         sound.play('electric');
-        // Activate wires
-        document.querySelectorAll('#advancedCircuit .wire').forEach(w => w.classList.add('active'));
+        // Activate wires in SVG
+        activateSVGWires();
     }, 500);
 
     setTimeout(() => {
         if (circuitType === 'series') {
-            // Series: dimmer light
-            bulb1.classList.add('on', 'dim');
-            bulb2.classList.add('on', 'dim');
+            // Series: dimmer light (yellow-ish, less glow)
+            lightUpSVGBulb('seriesBulb1', true);
+            lightUpSVGBulb('seriesBulb2', true);
             status.className = 'circuit-status closed';
             status.innerHTML = '🔗 توالي: إضاءة <strong>ضعيفة</strong> - مسار واحد';
         } else {
             // Parallel: full brightness
-            bulb1.classList.add('on');
-            bulb1.classList.remove('dim');
-            bulb2.classList.add('on');
-            bulb2.classList.remove('dim');
+            lightUpSVGBulb('parallelBulb1', false);
+            lightUpSVGBulb('parallelBulb2', false);
             status.className = 'circuit-status closed';
             status.innerHTML = '🔀 توازي: إضاءة <strong>قوية</strong> - مسارات متعددة';
         }
@@ -1642,6 +1653,51 @@ function runAdvancedExperiment() {
     setTimeout(() => {
         showAdvancedResult();
     }, 2500);
+}
+
+function activateSVGWires() {
+    const wireColor = '#f59e0b';
+    const glowFilter = 'drop-shadow(0 0 5px rgba(245, 158, 11, 0.8))';
+    
+    if (circuitType === 'series') {
+        ['seriesWire', 'seriesWire2', 'seriesWire3'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.setAttribute('stroke', wireColor);
+                el.style.filter = glowFilter;
+            }
+        });
+    } else {
+        ['parallelWireTop', 'parallelWireBottom', 'parallelBranch1', 'parallelBranch1b', 'parallelBranch2', 'parallelBranch2b'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.setAttribute('stroke', wireColor);
+                el.style.filter = glowFilter;
+            }
+        });
+        // Also the connection lines
+        document.querySelectorAll('#parallelCircuit line').forEach(el => {
+            el.setAttribute('stroke', wireColor);
+            el.style.filter = glowFilter;
+        });
+    }
+}
+
+function lightUpSVGBulb(bulbId, isDim) {
+    const bulb = document.getElementById(bulbId);
+    if (!bulb) return;
+    
+    if (isDim) {
+        // Dim light for series
+        bulb.setAttribute('fill', '#fde047');
+        bulb.setAttribute('stroke', '#fef08a');
+        bulb.style.filter = 'drop-shadow(0 0 15px rgba(253, 224, 71, 0.6))';
+    } else {
+        // Full brightness for parallel
+        bulb.setAttribute('fill', '#facc15');
+        bulb.setAttribute('stroke', '#fef08a');
+        bulb.style.filter = 'drop-shadow(0 0 30px rgba(250, 204, 21, 0.9)) drop-shadow(0 0 60px rgba(250, 204, 21, 0.5))';
+    }
 }
 
 function showAdvancedResult() {
@@ -1681,11 +1737,10 @@ function showAdvancedResult() {
         sound.play('error');
     }
 
-    // Update explanation
     if (circuitType === 'series') {
-        document.getElementById('advancedExplanationText').textContent = 'في دائرة التوالي، التيار يمر في مسار واحد فقط عبر جميع المكونات. الجهد الكهربائي يتوزع بين اللمبتين، لذلك تقل شدة الإضاءة. إذا احترقت لمبة واحدة، تنقطع الدائرة بالكامل وتنطفئ اللمبتان.';
+        document.getElementById('advancedExplanationText').textContent = 'في دائرة التوالي، التيار يمر في مسار واحد فقط عبر جميع المكونات (لمبة 1 ثم لمبة 2). الجهد الكهربائي يتوزع بين اللمبتين، لذلك تقل شدة الإضاءة. إذا احترقت لمبة واحدة، تنقطع الدائرة بالكامل وتنطفئ اللمبتان.';
     } else {
-        document.getElementById('advancedExplanationText').textContent = 'في دائرة التوازي، كل لمبة لها مسار مستقل. كل لمبة تحصل على الجهد الكامل من البطارية، لذلك تكون الإضاءة قوية. إذا احترقت لمبة واحدة، تستمر الأخرى في العمل لأن لها مساراً مستقلاً.';
+        document.getElementById('advancedExplanationText').textContent = 'في دائرة التوازي، كل لمبة لها مسار مستقل (فرع خاص بها). كل لمبة تحصل على الجهد الكامل من البطارية، لذلك تكون الإضاءة قوية ومتساوية. إذا احترقت لمبة واحدة، تستمر الأخرى في العمل لأن لها مساراً مستقلاً.';
     }
 
     document.getElementById('advancedExplanation').classList.add('visible');
@@ -1694,20 +1749,17 @@ function showAdvancedResult() {
     
     resultShown.advanced = true;
 
-    // Mark as completed
     if (!completedLevels.advanced) {
         completedLevels.advanced = true;
         updateProgress();
     }
 }
 
-// ✅ دالة إعادة تعيين حالة المستوى المتقدم
 function resetAdvancedState() {
     predictions.advanced = null;
     experimentStarted.advanced = false;
     resultShown.advanced = false;
 
-    // Reset UI
     document.querySelectorAll('#advancedExperiment .pred-btn').forEach(b => {
         b.classList.remove('selected');
         b.disabled = false;
@@ -1715,19 +1767,12 @@ function resetAdvancedState() {
     document.querySelectorAll('.circuit-type-btn').forEach(b => b.disabled = false);
     document.getElementById('advancedStartBtn').disabled = true;
 
-    // Reset circuit
-    const bulb1 = document.getElementById('advancedBulb1');
-    const bulb2 = document.getElementById('advancedBulb2');
-    bulb1.classList.remove('on', 'dim');
-    bulb2.classList.remove('on', 'dim');
-
     document.getElementById('advancedStatus').className = 'circuit-status open';
     document.getElementById('advancedStatus').textContent = 'شاهد التجربة';
 
-    // Reset wires
-    document.querySelectorAll('#advancedCircuit .wire').forEach(w => w.classList.remove('active'));
+    // Reset SVG
+    resetSVGBulbs();
 
-    // Hide results
     document.getElementById('advancedResult').className = 'result-box';
     document.getElementById('advancedExplanation').classList.remove('visible');
     document.getElementById('advancedResetBtn').classList.remove('visible');
@@ -1758,7 +1803,6 @@ function completeAllLevels() {
 function restartAll() {
     sound.play('click');
 
-    // Reset all states
     predictions = { beginner: null, intermediate: null, advanced: null };
     completedLevels = { beginner: false, intermediate: false, advanced: false };
     experimentStarted = { beginner: false, intermediate: false, advanced: false };
@@ -1767,27 +1811,24 @@ function restartAll() {
     circuitType = 'series';
     selectedLevel = null;
 
-    // Reset all levels
     resetBeginnerState();
     resetIntermediateState();
     resetAdvancedState();
 
-    // Reset circuit type selector
     document.getElementById('seriesBtn').classList.add('active');
     document.getElementById('parallelBtn').classList.remove('active');
     document.getElementById('seriesInfo').classList.remove('hidden');
     document.getElementById('parallelInfo').classList.add('hidden');
+    document.getElementById('seriesCircuit').style.display = 'block';
+    document.getElementById('parallelCircuit').style.display = 'none';
 
-    // Reset progress
     document.getElementById('progressBar').style.width = '0%';
     document.getElementById('progressText').textContent = '0/3';
 
-    // Remove completed marks
     document.querySelectorAll('.level-card').forEach(card => {
         card.classList.remove('selected', 'completed');
     });
 
-    // Show level selection
     document.getElementById('completionCard').style.display = 'none';
     document.getElementById('levelSelection').style.display = 'block';
     document.getElementById('startLevelBtn').disabled = true;
@@ -1803,4 +1844,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
-    
